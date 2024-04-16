@@ -1,0 +1,12 @@
+name: Push
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/*'
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: ./script.sh

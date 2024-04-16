@@ -1,0 +1,99 @@
+---
+- name: Check if nginx is installed
+  shell:
+    cmd: "command -v nginx"
+  register: nginx_installed
+  ignore_errors: true
+
+- name: Install certbot if missing
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - certbot
+    - python3-certbot-nginx
+
+- name: Install nginx if missing
+  apt:
+    name: "nginx"
+    state: present
+  when: nginx_installed.rc != 0
+
+- name: Install apache2-utils
+  apt:
+    name: "apache2-utils"
+    state: present
+  when: auth_on
+
+- name: Add password file
+  shell:
+    cmd: htpasswd -b -c /etc/nginx/.htpasswd otakoyi Otakoyi2011
+  when: auth_on
+
+- name: Check if directories /etc/nginx/sites-enabled and /etc/nginx/sites-available exist
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/sites-available
+
+- name: Check if include /etc/nginx/sites-enabled is present in nginx config
+  shell: "cat /etc/nginx/nginx.conf | grep 'include /etc/nginx/sites-enabled/*'"
+  ignore_errors: true
+  register: incule_sites_enabled
+
+- name: Add include directive to nginx config
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    line: "    include /etc/nginx/sites-enabled/*;"
+    insertafter: "(http\\s*\\{)([^}]+)"
+    state: present
+  when: incule_sites_enabled.rc != 0
+
+- name: Check if nginx config exists for app_domain
+  shell: nginx -T | grep {{ app_domain }}
+  register: config_exists
+  ignore_errors: true
+
+- name: Copy basic nginx conf to sites-enabled
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/sites-available/{{ app_domain }}"
+  # vars:
+  #   domain: "{{ app_domain }}"
+  when: config_exists.rc != 0
+
+- name: Check if certificate for app domain exists
+  stat:
+    path: "/etc/letsencrypt/live/{{ app_domain }}/"
+  register: cert_check
+
+- name: Check if DNS name resolves to instance IP
+  shell: "nslookup {{ app_domain }} | grep $(curl -4 icanhazip.com)"
+  register: nslookup_output
+
+- name: Display message indicating whether DNS name resolves to instance IP
+  debug:
+    msg: "DNS name resolves to instance IP"
+  failed_when: nslookup_output.rc != 0
+
+- name: Creeate symbolic link
+  file:
+    src: "/etc/nginx/sites-available/{{ app_domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ app_domain }}"
+    state: link
+  when: config_exists.rc != 0
+  notify: reload nginx
+
+- name: Generate certificate
+  shell:
+    cmd: "certbot --nginx --register-unsafely-without-email -d {{ app_domain }} --agree-tos"
+  when: not cert_check.stat.exists
+
+- name: Copy .env file to gitlab-runner's home
+  copy:
+    src: "../vaults/{{ item }}"
+    dest: "/home/gitlab-runner/.env "
+  loop:
+    - ".env.{{ environment_name }}"

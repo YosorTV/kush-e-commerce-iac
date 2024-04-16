@@ -1,0 +1,4 @@
+infra/**/inventory.yml
+*terraform*
+.password
+.devops_helper

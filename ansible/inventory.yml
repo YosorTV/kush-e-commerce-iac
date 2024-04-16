@@ -1,0 +1,7 @@
+"all":
+  "hosts":
+    "kush-e-commerce-dev":
+      "ansible_host": "159.65.124.156"
+"instances":
+  "hosts":
+  - "kush-e-commerce-dev"
