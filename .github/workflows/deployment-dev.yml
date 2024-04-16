@@ -10,6 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Test
-        run: ./script.sh
+        run: ./ci/deploy.sh
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          APP_DOMAIN: dev.kush-test.pp.ua
+          FRONTEND_PORT: 3000
+          BACKEND_PORT: 1337
+          ENVIRONMENT_NAME: dev

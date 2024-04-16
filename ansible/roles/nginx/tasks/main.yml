@@ -19,17 +19,6 @@
     state: present
   when: nginx_installed.rc != 0
 
-- name: Install apache2-utils
-  apt:
-    name: "apache2-utils"
-    state: present
-  when: auth_on
-
-- name: Add password file
-  shell:
-    cmd: htpasswd -b -c /etc/nginx/.htpasswd otakoyi Otakoyi2011
-  when: auth_on
-
 - name: Check if directories /etc/nginx/sites-enabled and /etc/nginx/sites-available exist
   file:
     path: "{{ item }}"
