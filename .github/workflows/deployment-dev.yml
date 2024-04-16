@@ -13,3 +13,4 @@ jobs:
         run: ./script.sh
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          
