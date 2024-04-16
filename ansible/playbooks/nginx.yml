@@ -4,6 +4,4 @@
   become: true
   roles:
     - role: nginx
-      vars:
-        auth_on: "{{ (authon == true) | bool }} "
-    - elasticsearch
+
