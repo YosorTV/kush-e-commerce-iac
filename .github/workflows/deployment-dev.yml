@@ -6,11 +6,10 @@ on:
 jobs:
   test:
     runs-on: self-hosted
-    environment: dev
+
     steps:
       - uses: actions/checkout@v3
       - name: Test
         run: ./script.sh
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-          
