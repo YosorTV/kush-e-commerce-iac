@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Hello" > /tmp/test
+echo "${ANSIBLE_VAULT_PASSWORD}" > /tmp/test
