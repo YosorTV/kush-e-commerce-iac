@@ -83,6 +83,7 @@
 - name: Copy .env file to gitlab-runner's home
   copy:
     src: "../vaults/{{ item }}"
-    dest: "/home/gitlab-runner/.env "
+    dest: "/home/github-runner/{{ item }}"
   loop:
-    - ".env.{{ environment_name }}"
+    - ".env.frontend.{{ environment_name }}"
+    - ".env.backend.{{ environment_name }}"
