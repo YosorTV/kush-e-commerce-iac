@@ -3,7 +3,8 @@ variable "terraform_state_bucket_name" {
     description = "name of terraform state bucket"
 }
 
-variable "region" {
-    type = string
-    description = "region to create terraform state bucket in"
+variable "tags" {
+    type = map(string)
+    description = "tags to apply to bucket"
+    default = {}
 }

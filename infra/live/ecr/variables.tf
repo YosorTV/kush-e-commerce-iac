@@ -1,4 +1,4 @@
 variable "environment" {}
 variable "region" {
-  default = "eu-central-1"
+  
 }
